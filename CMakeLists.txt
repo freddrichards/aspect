@@ -113,7 +113,10 @@ FILE(STRINGS "${CMAKE_SOURCE_DIR}/VERSION" ASPECT_PACKAGE_VERSION LIMIT_COUNT 1)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/cmake/macro_aspect_query_git_information.cmake)
 ASPECT_QUERY_GIT_INFORMATION("ASPECT")
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/hack_2019
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/include/aspect/revision.h.in ${CMAKE_BINARY_DIR}/include/aspect/revision.h @ONLY)
 
 INCLUDE(CMakePackageConfigHelpers)
@@ -451,7 +454,11 @@ IF(${PerpleX_FOUND})
       APPEND PROPERTY COMPILE_DEFINITIONS ASPECT_WITH_PERPLEX="1")
   ENDFOREACH()
 ELSE()
+<<<<<<< HEAD
 	SET(ASPECT_WITH_PERPLEX OFF)
+=======
+  SET(ASPECT_WITH_PERPLEX OFF)
+>>>>>>> origin/hack_2019
 ENDIF()
 
 

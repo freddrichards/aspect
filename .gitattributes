@@ -7,4 +7,7 @@ doc/release-tasklist export-ignore
 doc/update_parameters.sh export-ignore
 Jenkinsfile export-ignore
 .zenodo.json export-ignore
+<<<<<<< HEAD
 data/initial-temperature/ascii-data/test/temp_stkcg_py0ba100_q4_2600.txt filter=lfs diff=lfs merge=lfs -text
+=======
+>>>>>>> origin/hack_2019

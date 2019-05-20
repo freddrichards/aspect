@@ -71,6 +71,7 @@ For more information see:
      - Timo Heister: heister@sci.utah.edu
 
  - The following people have significantly contributed and furthered ASPECT's goals and are therefore Principal Developers:
+<<<<<<< HEAD
 
    - Jacky Austermann
    - Wolfgang Bangerth
@@ -81,6 +82,18 @@ For more information see:
    - Timo Heister
    - John Naliboff
 
+=======
+
+   - Jacky Austermann
+   - Wolfgang Bangerth
+   - Juliane Dannberg
+   - Menno Fraters
+   - Rene Gassmoeller
+   - Anne Glerum
+   - Timo Heister
+   - John Naliboff
+
+>>>>>>> origin/hack_2019
  - A complete and growing list of the many authors that have contributed over the years can be found at [github](https://github.com/geodynamics/aspect/graphs/contributors)
  - If you have specific questions about ASPECT that are not suitable for public and archived mailing lists, feel free to contact the maintainers or principal developers.
 
@@ -90,8 +103,11 @@ License
 -------
 
 ASPECT is published under [GPL v2 or newer](LICENSE).
+<<<<<<< HEAD
 
 Branch Name
 -----------
 
 hack_2019
+=======
+>>>>>>> origin/hack_2019
