@@ -3,7 +3,7 @@
 # run this script from the doc directory to update parameters.tex. Note that
 # you need an in-source build or a symbolic link to the ASPECT binary in the
 # main directory.
-#TEST
+
 ASPECT=${1:-"./aspect"}
 
 pushd .
