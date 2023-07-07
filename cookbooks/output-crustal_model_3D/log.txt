@@ -1,0 +1,56 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in DEBUG mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 1,536 (on 3 levels)
+Number of degrees of freedom: 60,645 (43,875+2,145+14,625)
+
+Number of mesh deformation degrees of freedom: 6435
+*** Timestep 0:  t=0 years
+   Solving mesh velocity system... 0 iterations.
+   Skipping temperature solve because RHS is zero.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+17 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 1: 1
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+104 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 2: 0.150598
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+24 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 3: 8.0573e-05
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+30 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 4: 4.95758e-05
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+20 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 5: 3.26538e-05
+
+
+   Postprocessing:
+     Writing graphical output: output-crustal_model_3D/solution/solution-00000
+     RMS, max velocity:        0.0099 m/year, 0.0135 m/year
+     Topography min/max:       0 m, 0 m
+     Pressure min/avg/max:     -1.256e+08 Pa, 1.923e+08 Pa, 1.116e+09 Pa
+
+Number of active cells: 3,713 (on 4 levels)
+Number of degrees of freedom: 145,355 (105,303+4,951+35,101)
+
+Number of mesh deformation degrees of freedom: 14853
+*** Timestep 0:  t=0 years
+   Solving mesh velocity system... 0 iterations.
+   Skipping temperature solve because RHS is zero.

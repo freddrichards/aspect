@@ -1,0 +1,16 @@
+# 1: Time step number
+# 2: Time (years)
+# 3: Time step size (years)
+# 4: Number of mesh cells
+# 5: Number of Stokes degrees of freedom
+# 6: Number of temperature degrees of freedom
+# 7: Number of nonlinear iterations
+# 8: Iterations for temperature solver
+# 9: Iterations for Stokes solver
+# 10: Velocity iterations in Stokes preconditioner
+# 11: Schur complement iterations in Stokes preconditioner
+# 12: Visualization file name
+# 13: RMS velocity (m/year)
+# 14: Max. velocity (m/year)
+0 0.000000000000e+00 0.000000000000e+00 320 3123 1377 5 0 2918 16267 13457 output-crustal_model_2D/solution/solution-00000 7.66712800e-03 1.00007280e-02 
+0 0.000000000000e+00 0.000000000000e+00 995 9510 4210 5 0 3283 23188 15823 output-crustal_model_2D/solution/solution-00001 7.61338813e-03 1.04028831e-02 

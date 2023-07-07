@@ -1,0 +1,54 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7f6)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in OPTIMIZED mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&melt=1&sha=c200de7f6&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 1,536 (on 5 levels)
+Number of degrees of freedom: 51,977 (12,610+6,225+12,610+1,617+6,305+6,305+6,305)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Skipping porosity composition solve because RHS is zero.
+   Skipping peridotite composition solve because RHS is zero.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 49+0 iterations.
+   Solving for u_f in 11 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.67012e-16, 0, 0, 1
+      Relative nonlinear residual (total system) after nonlinear iteration 1: 1
+
+   Solving temperature system... 0 iterations.
+   Skipping porosity composition solve because RHS is zero.
+   Skipping peridotite composition solve because RHS is zero.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+0 iterations.
+   Solving for u_f in 11 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.67012e-16, 0, 0, 7.31249e-08
+      Relative nonlinear residual (total system) after nonlinear iteration 2: 7.31249e-08
+
+
+Number of active cells: 1,536 (on 5 levels)
+Number of degrees of freedom: 51,977 (12,610+6,225+12,610+1,617+6,305+6,305+6,305)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Skipping porosity composition solve because RHS is zero.
+   Skipping peridotite composition solve because RHS is zero.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 49+0 iterations.
+   Solving for u_f in 11 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.67012e-16, 0, 0, 1
+      Relative nonlinear residual (total system) after nonlinear iteration 1: 1
+
+   Solving temperature system... 0 iterations.
+   Skipping porosity composition solve because RHS is zero.
+   Skipping peridotite composition solve because RHS is zero.

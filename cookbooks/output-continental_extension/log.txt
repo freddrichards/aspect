@@ -1,0 +1,105 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in DEBUG mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 10,000 (on 1 levels)
+Number of degrees of freedom: 293,758 (81,002+10,251+40,501+40,501+40,501+40,501+40,501)
+
+Number of mesh deformation degrees of freedom: 20502
+*** Timestep 0:  t=0 years
+   Solving mesh velocity system... 0 iterations.
+   Solving temperature system... 0 iterations.
+   Solving upper system ... 0 iterations.
+   Solving lower system ... 0 iterations.
+   Solving mantle system ... 0 iterations.
+   Solving seed system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+21 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 1: 1
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+18 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 2: 0.0134022
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+15 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 3: 0.00491945
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+15 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 4: 0.00187529
+
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 0+12 iterations.
+      Relative nonlinear residual (Stokes system) after nonlinear iteration 5: 0.000771089
+
+
+   Postprocessing:
+     RMS, max velocity:        0.00163 m/year, 0.00279 m/year
+     Temperature min/avg/max:  273 K, 1013 K, 1573 K
+     Writing graphical output: output-continental_extension/solution/solution-00000
+
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |       640s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble Stokes system           |         5 |       100s |        16% |
+| Assemble composition system      |         4 |       141s |        22% |
+| Assemble temperature system      |         1 |      46.9s |       7.3% |
+| Build Stokes preconditioner      |         5 |      75.8s |        12% |
+| Build composition preconditioner |         4 |     0.354s |         0% |
+| Build temperature preconditioner |         1 |    0.0873s |         0% |
+| Initialization                   |         1 |       4.6s |      0.72% |
+| Mesh deformation                 |         1 |      8.22s |       1.3% |
+| Postprocessing                   |         1 |      70.1s |        11% |
+| Setup dof systems                |         1 |      7.07s |       1.1% |
+| Setup initial conditions         |         1 |      87.1s |        14% |
+| Setup matrices                   |         1 |      11.3s |       1.8% |
+| Solve Stokes system              |         5 |      31.2s |       4.9% |
+| Solve composition system         |         4 |      0.06s |         0% |
+| Solve temperature system         |         1 |    0.0166s |         0% |
++----------------------------------+-----------+------------+------------+
+
+Termination requested by criterion: end time
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |       640s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble Stokes system           |         5 |       100s |        16% |
+| Assemble composition system      |         4 |       141s |        22% |
+| Assemble temperature system      |         1 |      46.9s |       7.3% |
+| Build Stokes preconditioner      |         5 |      75.8s |        12% |
+| Build composition preconditioner |         4 |     0.354s |         0% |
+| Build temperature preconditioner |         1 |    0.0873s |         0% |
+| Initialization                   |         1 |       4.6s |      0.72% |
+| Mesh deformation                 |         1 |      8.22s |       1.3% |
+| Postprocessing                   |         1 |      70.1s |        11% |
+| Setup dof systems                |         1 |      7.07s |       1.1% |
+| Setup initial conditions         |         1 |      87.1s |        14% |
+| Setup matrices                   |         1 |      11.3s |       1.8% |
+| Solve Stokes system              |         5 |      31.2s |       4.9% |
+| Solve composition system         |         4 |      0.06s |         0% |
+| Solve temperature system         |         1 |    0.0166s |         0% |
++----------------------------------+-----------+------------+------------+
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------

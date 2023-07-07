@@ -1,0 +1,19 @@
+# 1: Time step number
+# 2: Time (years)
+# 3: Time step size (years)
+# 4: Number of mesh cells
+# 5: Number of Stokes degrees of freedom
+# 6: Number of temperature degrees of freedom
+# 7: Number of degrees of freedom for all compositions
+# 8: Iterations for temperature solver
+# 9: Iterations for composition solver 1
+# 10: Iterations for Stokes solver
+# 11: Velocity iterations in Stokes preconditioner
+# 12: Schur complement iterations in Stokes preconditioner
+# 13: Visualization file name
+# 14: RMS velocity (m/year)
+# 15: Max. velocity (m/year)
+# 16: Minimal value for composition C_1
+# 17: Maximal value for composition C_1
+# 18: Global mass for composition C_1
+0 0.000000000000e+00 0.000000000000e+00 4096 37507 16641 16641 0 0 340 9057 1284 output-sinker-with-averaging/solution/solution-00000 4.68961629e+05 8.93353025e+05 0.00000000e+00 1.00000000e+00 1.50960286e-01 

@@ -1,0 +1,138 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in DEBUG mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 4,096 (on 6 levels)
+Number of degrees of freedom: 87,782 (33,410+4,257+16,705+16,705+16,705)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 92+0 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.67766e-16, 1.12804e-16, 8.80598e-17, 1
+      Relative nonlinear residual (total system) after nonlinear iteration 1: 1
+
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 16+0 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.67766e-16, 1.12804e-16, 8.80598e-17, 9.63409e-08
+      Relative nonlinear residual (total system) after nonlinear iteration 2: 9.63409e-08
+
+
+Number of active cells: 6,016 (on 7 levels)
+Number of degrees of freedom: 130,205 (49,558+6,310+24,779+24,779+24,779)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 200+7 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.70039e-16, 1.12368e-16, 1.06001e-16, 1
+      Relative nonlinear residual (total system) after nonlinear iteration 1: 1
+
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 47+0 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.70039e-16, 1.12368e-16, 1.06001e-16, 6.45293e-08
+      Relative nonlinear residual (total system) after nonlinear iteration 2: 6.45293e-08
+
+
+Number of active cells: 12,928 (on 8 levels)
+Number of degrees of freedom: 279,552 (106,426+13,487+53,213+53,213+53,213)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 200+9 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.68587e-16, 1.11715e-16, 1.20441e-16, 1
+      Relative nonlinear residual (total system) after nonlinear iteration 1: 1
+
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 69+0 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.68587e-16, 1.11715e-16, 1.20441e-16, 8.9372e-08
+      Relative nonlinear residual (total system) after nonlinear iteration 2: 8.9372e-08
+
+
+Number of active cells: 41,728 (on 9 levels)
+Number of degrees of freedom: 892,764 (339,978+42,819+169,989+169,989+169,989)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 200+4 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.68278e-16, 1.17434e-16, 1.12771e-16, 1
+      Relative nonlinear residual (total system) after nonlinear iteration 1: 1
+
+   Solving temperature system... 0 iterations.
+   Solving upper_crust system ... 0 iterations.
+   Solving lower_crust system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 102+0 iterations.
+      Relative nonlinear residuals (temperature, compositional fields, Stokes system): 1.68278e-16, 1.17434e-16, 1.12771e-16, 8.77494e-08
+      Relative nonlinear residual (total system) after nonlinear iteration 2: 8.77494e-08
+
+
+   Postprocessing:
+
+**** Warning: When computing depth averages, there is at least one depth band
+     that does not have any quadrature points in it.
+     Consider reducing the number of depth layers for averaging.
+
+     Writing depth average: output-morency_doin/depth_average.gnuplot
+
+Termination requested by criterion: end step
+Termination requested by criterion: end time
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |   1.5e+03s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble Stokes system           |         8 |       185s |        12% |
+| Assemble composition system      |        16 |       502s |        33% |
+| Assemble temperature system      |         8 |       269s |        18% |
+| Build Stokes preconditioner      |         8 |       130s |       8.6% |
+| Build composition preconditioner |        16 |       2.2s |      0.15% |
+| Build temperature preconditioner |         8 |      1.08s |         0% |
+| Initialization                   |         1 |     0.291s |         0% |
+| Postprocessing                   |         1 |      41.5s |       2.8% |
+| Refine mesh structure, part 1    |         3 |      32.7s |       2.2% |
+| Refine mesh structure, part 2    |         3 |      8.01s |      0.53% |
+| Setup dof systems                |         4 |      26.9s |       1.8% |
+| Setup initial conditions         |         4 |       133s |       8.8% |
+| Setup matrices                   |         4 |      40.8s |       2.7% |
+| Solve Stokes system              |         8 |      78.6s |       5.2% |
+| Solve composition system         |        16 |     0.504s |         0% |
+| Solve temperature system         |         8 |     0.252s |         0% |
++----------------------------------+-----------+------------+------------+
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------

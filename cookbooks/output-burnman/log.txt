@@ -1,0 +1,85 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in DEBUG mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+
+   Setting up GPlates boundary velocity plugin.
+
+   Input point 1 spherical coordinates: 1.571 4.870
+   Input point 1 normalized cartesian coordinates: 0.157 -0.988 -0.000
+   Input point 1 rotated model coordinates: 0.157 -0.988 -0.000
+   Input point 2 spherical coordinates: 1.571 5.240
+   Input point 2 normalized cartesian coordinates: 0.503 -0.864 -0.000
+   Input point 2 rotated model coordinates: 0.503 -0.864 -0.000
+
+   Model will be rotated by -0.00 degrees around axis 0.00 0.00 1.00
+   The ParaView rotation angles are: 0.00 -0.00 0.00
+   The inverse ParaView rotation angles are: 0.00 -0.00 0.00
+
+   Loading GPlates data boundary file /rds/general/user/fr714/home/reinstall/my_model_v3.2/data/boundary-velocity/gplates/current_day.gpml.
+
+
+   Loading new velocity file did not succeed.
+   Assuming constant boundary conditions for rest of model run.
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 12,288 (on 6 levels)
+Number of degrees of freedom: 162,432 (99,840+12,672+49,920)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 78+0 iterations.
+
+Number of active cells: 5,952 (on 7 levels)
+Number of degrees of freedom: 87,552 (53,760+6,912+26,880)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 81+0 iterations.
+
+   Postprocessing:
+     Writing graphical output:           output-burnman/solution/solution-00000
+     RMS, max velocity:                  0.0179 m/year, 0.077 m/year
+     Temperature min/avg/max:            273 K, 2032 K, 3500 K
+     Heat fluxes through boundary parts: -2.303e+06 W, 3.069e+06 W
+     Writing depth average:              output-burnman/depth_average.gnuplot
+
+Termination requested by criterion: end time
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |       234s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble Stokes system           |         2 |      38.9s |        17% |
+| Assemble temperature system      |         2 |      49.7s |        21% |
+| Build Stokes preconditioner      |         2 |      26.1s |        11% |
+| Build temperature preconditioner |         2 |     0.157s |         0% |
+| Initialization                   |         1 |     0.454s |      0.19% |
+| Postprocessing                   |         1 |      20.9s |       8.9% |
+| Refine mesh structure, part 1    |         1 |      26.1s |        11% |
+| Refine mesh structure, part 2    |         1 |      2.41s |         1% |
+| Setup dof systems                |         2 |      5.79s |       2.5% |
+| Setup initial conditions         |         2 |      31.3s |        13% |
+| Setup matrices                   |         2 |      6.29s |       2.7% |
+| Solve Stokes system              |         2 |      5.12s |       2.2% |
+| Solve temperature system         |         2 |    0.0561s |         0% |
++----------------------------------+-----------+------------+------------+
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------

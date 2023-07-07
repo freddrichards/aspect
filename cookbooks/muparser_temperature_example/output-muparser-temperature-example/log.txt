@@ -1,0 +1,90 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in DEBUG mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 320 (on 4 levels)
+Number of degrees of freedom: 4,500 (2,754+369+1,377)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 24+0 iterations.
+
+Number of active cells: 560 (on 5 levels)
+Number of degrees of freedom: 8,034 (4,922+651+2,461)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 26+0 iterations.
+
+Number of active cells: 1,280 (on 6 levels)
+Number of degrees of freedom: 18,215 (11,174+1,454+5,587)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 27+0 iterations.
+
+Number of active cells: 3,680 (on 7 levels)
+Number of degrees of freedom: 51,050 (31,354+4,019+15,677)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 30+0 iterations.
+
+Number of active cells: 14,120 (on 8 levels)
+Number of degrees of freedom: 190,061 (116,846+14,792+58,423)
+
+*** Timestep 0:  t=0 years
+   Solving temperature system... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 33+0 iterations.
+
+   Postprocessing:
+     Writing graphical output: output-muparser-temperature-example/solution/solution-00000
+     RMS, max velocity:        0.00266 m/year, 0.0143 m/year
+     Temperature min/avg/max:  273 K, 1621 K, 1675 K
+
+Number of active cells: 14,120 (on 8 levels)
+Number of degrees of freedom: 190,061 (116,846+14,792+58,423)
+
+Termination requested by criterion: end time
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |       149s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble Stokes system           |         5 |      25.1s |        17% |
+| Assemble temperature system      |         5 |      26.9s |        18% |
+| Build Stokes preconditioner      |         5 |      16.4s |        11% |
+| Build temperature preconditioner |         5 |     0.174s |      0.12% |
+| Initialization                   |         1 |      0.45s |       0.3% |
+| Postprocessing                   |         1 |      6.13s |       4.1% |
+| Refine mesh structure, part 1    |         5 |      24.6s |        16% |
+| Refine mesh structure, part 2    |         5 |      3.62s |       2.4% |
+| Setup dof systems                |         6 |      10.8s |       7.2% |
+| Setup initial conditions         |         5 |      16.3s |        11% |
+| Setup matrices                   |         5 |      7.29s |       4.9% |
+| Solve Stokes system              |         5 |      2.32s |       1.6% |
+| Solve temperature system         |         5 |    0.0615s |         0% |
++----------------------------------+-----------+------------+------------+
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------

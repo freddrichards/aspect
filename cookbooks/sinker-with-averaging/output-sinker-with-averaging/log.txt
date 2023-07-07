@@ -1,0 +1,55 @@
+-----------------------------------------------------------------------------
+-- This is ASPECT, the Advanced Solver for Problems in Earth's ConvecTion.
+--     . version 2.1.0-pre (my_model_v3.2, c200de7)
+--     . using deal.II 9.1.1
+--     .       with 32 bit indices and vectorization level 1 (128 bits)
+--     . using Trilinos 12.10.1
+--     . using p4est 2.2.0
+--     . running in DEBUG mode
+--     . running with 1 MPI process
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
+Number of active cells: 4,096 (on 7 levels)
+Number of degrees of freedom: 70,789 (33,282+4,225+16,641+16,641)
+
+*** Timestep 0:  t=0 years
+   Skipping temperature solve because RHS is zero.
+   Solving C_1 system ... 0 iterations.
+   Rebuilding Stokes preconditioner...
+   Solving Stokes system... 200+140 iterations.
+
+   Postprocessing:
+     Writing graphical output:  output-sinker-with-averaging/solution/solution-00000
+     RMS, max velocity:         4.69e+05 m/year, 8.93e+05 m/year
+     Compositions min/max/mass: 0/1/0.151
+
+Termination requested by criterion: end time
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |       123s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble Stokes system           |         1 |      6.68s |       5.4% |
+| Assemble composition system      |         1 |      7.05s |       5.7% |
+| Assemble temperature system      |         1 |      7.91s |       6.4% |
+| Build Stokes preconditioner      |         1 |      4.03s |       3.3% |
+| Build composition preconditioner |         1 |    0.0445s |         0% |
+| Initialization                   |         1 |     0.368s |       0.3% |
+| Postprocessing                   |         1 |      3.62s |       2.9% |
+| Setup dof systems                |         1 |      5.64s |       4.6% |
+| Setup initial conditions         |         1 |      4.26s |       3.5% |
+| Setup matrices                   |         1 |      2.06s |       1.7% |
+| Solve Stokes system              |         1 |      78.6s |        64% |
+| Solve composition system         |         1 |   0.00727s |         0% |
++----------------------------------+-----------+------------+------------+
+
+-----------------------------------------------------------------------------
+-- For information on how to cite ASPECT, see:
+--   https://aspect.geodynamics.org/citing.html?ver=2.1.0-pre&sha=c200de7&src=code
+-----------------------------------------------------------------------------
