@@ -54,8 +54,6 @@ namespace aspect
           const double temperature_dependence
             = (reference_T > 0
                ?
-               //    std::max(std::min(std::exp(-thermal_viscosity_exponent *
-               //                               delta_temp/reference_T),
                std::max(std::min(std::exp(- thermal_viscosity_exponent * delta_temp),
                                  maximum_thermal_prefactor),
                         minimum_thermal_prefactor)
