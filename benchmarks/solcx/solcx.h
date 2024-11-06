@@ -2852,22 +2852,22 @@ namespace aspect
         /*printf("%0.7f %0.7f %0.7f %0.7f %0.7f %0.7f %0.7f %0.7f\n",x,z,sum1,sum2,sum3,sum4,sum5,sum6);*/
 
         /* Output */
-        if (vel != NULL)
+        if (vel != nullptr)
           {
             vel[0] = sum1;
             vel[1] = sum2;
           }
-        if (presssure != NULL)
+        if (presssure != nullptr)
           {
             (*presssure) = sum5;
           }
-        if (total_stress != NULL)
+        if (total_stress != nullptr)
           {
             total_stress[0] = sum3;
             total_stress[1] = sum6;
             total_stress[2] = sum4;
           }
-        if (strain_rate != NULL)
+        if (strain_rate != nullptr)
           {
             if (x > xc)
               {
@@ -2894,7 +2894,7 @@ namespace aspect
        * The exact solution for the SolCx benchmark, given the value of the
        * jump in viscosity $\eta_B$.
        */
-      template<int dim>
+      template <int dim>
       class FunctionSolCx : public Function<dim>
       {
         public:
@@ -2907,8 +2907,9 @@ namespace aspect
             background_density(background_density),
             n_compositional_fields(n_compositional_fields) {}
 
-          virtual void vector_value(const Point<dim> &p,
-                                    Vector<double> &values) const
+
+          void vector_value(const Point<dim> &p,
+                            Vector<double> &values) const override
           {
             AssertDimension(values.size(), 4 + n_compositional_fields);
 
@@ -3114,7 +3115,6 @@ namespace aspect
         std::pair<std::string,std::string>
         execute (TableHandler &/*statistics*/) override
         {
-          std::unique_ptr<Function<dim>> ref_func;
 
           AssertThrow(Plugins::plugin_type_matches<const SolCxMaterial<dim>>(this->get_material_model()),
                       ExcMessage("Postprocessor DuretzEtAl only works with the material model SolCx, SolKz, and Inclusion."));
@@ -3123,9 +3123,10 @@ namespace aspect
           material_model
             = Plugins::get_plugin_as_type<const SolCxMaterial<dim>>(this->get_material_model());
 
-          ref_func.reset (new AnalyticSolutions::FunctionSolCx<dim>(material_model.get_eta_B(),
-                                                                    material_model.get_background_density(),
-                                                                    this->n_compositional_fields()));
+          std::unique_ptr<Function<dim>> ref_func
+            = std::make_unique<AnalyticSolutions::FunctionSolCx<dim>>(material_model.get_eta_B(),
+                                                                       material_model.get_background_density(),
+                                                                       this->n_compositional_fields());
 
           const QGauss<dim> quadrature_formula (this->introspection().polynomial_degree.velocities + 2);
 

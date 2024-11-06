@@ -1,7 +1,9 @@
 (cha:intro)=
 # Introduction
 
-ASPECT - short for Advanced Solver for Problems in Earth's ConvecTion - is a code intended to solve the equations that describe thermally driven convection with a focus on doing so in the context of convection in the Earth's mantle.
+ASPECT - short for Advanced Solver for Planetary Evolution, Convection, and Tectonics - is a code intended to solve the equations that describe thermally driven convection with a focus on doing so in the context of convection in the Earth's mantle. The scope of this software has grown to include other planetary bodies and other processes including tectonics, lithospheric deformation, two-phase flow, and core convection. This is reflected in renaming ASPECT
+from "Advanced Solver for Problems in Earth's ConvecTion" to its current name in 2023.
+
 It is developed by computational scientists all over the world based on the following principles:
 
 -   *Usability and extensibility:* Simulating mantle convection is a difficult problem characterized not only by complicated and nonlinear material models but, more generally, by a lack of understanding of which parts of a much more complicated model are really necessary to simulate the defining features of the problem.
@@ -39,7 +41,7 @@ We hope to have achieved our goal of providing a useful tool to the geodynamics 
 :::{note}
 ASPECT is a community project. As such, we encourage contributions from the community to improve this code over time.
 Natural candidates for such contributions are implementations of new plugins as discussed in {ref}`sec:extending:plugin-types` since they are typically self-contained and do not require much knowledge of the details of the remaining code.
-Obviously, however, we also encourage contirbutions to the core functionality in any form! If you have something that might be of general interest, please contact us.
+Obviously, however, we also encourage contributions to the core functionality in any form! If you have something that might be of general interest, please contact us.
 :::
 
 :::{note}

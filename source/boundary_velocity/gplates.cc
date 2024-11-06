@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2011 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -95,7 +95,7 @@ namespace aspect
       template <int dim>
       void
       GPlatesLookup<dim>::load_file(const std::string &filename,
-                                    const MPI_Comm &comm)
+                                    const MPI_Comm comm)
       {
         // Read data from disk and distribute among processes
         std::istringstream filecontent(
@@ -155,7 +155,7 @@ namespace aspect
             velocity_values[0][idx_theta][idx_phi]= spherical_velocities[0] * cmyr_si;
             velocity_values[1][idx_theta][idx_phi]= spherical_velocities[1] * cmyr_si;
 
-            i++;
+            ++i;
           }
 
         // Pad the longitude data with values for phi == 2*pi (== 0),
@@ -182,7 +182,7 @@ namespace aspect
         grid_extent[1].first = 0;
         grid_extent[1].second = 2 * numbers::PI;
 
-        for (unsigned int i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; ++i)
           {
             velocities[i]
               = std::make_unique<Functions::InterpolatedUniformGridData<2>> (grid_extent,
@@ -266,7 +266,7 @@ namespace aspect
         // Main work, interpolate velocity at this point
         Tensor<1,2> interpolated_velocity;
 
-        for (unsigned int i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 2; ++i)
           interpolated_velocity[i] = velocities[i]->value(lookup_coordinates);
 
         // Transform interpolated_velocity in cartesian coordinates
@@ -379,7 +379,7 @@ namespace aspect
         const double y3 = rotation_matrix[1][1];
         const double z3 = rotation_matrix[1][2];
 
-        double d1 = sqrt(x2*x2 + z2*z2);
+        double d1 = std::sqrt(x2*x2 + z2*z2);
 
         double cosTheta, sinTheta;
         if (d1 < std::numeric_limits<double>::min())
@@ -397,7 +397,7 @@ namespace aspect
         orientation[1] = - theta * constants::radians_to_degree;
 
         // now rotate about x axis
-        double d = sqrt(x2*x2 + y2*y2 + z2*z2);
+        double d = std::sqrt(x2*x2 + y2*y2 + z2*z2);
 
         double sinPhi, cosPhi;
         if (d < std::numeric_limits<double>::min())
@@ -422,7 +422,7 @@ namespace aspect
         // finally, rotate about z
         double x3p = x3*cosTheta - z3*sinTheta;
         double y3p = - sinPhi*sinTheta*x3 + cosPhi*y3 - sinPhi*cosTheta*z3;
-        double d2 = sqrt(x3p*x3p + y3p*y3p);
+        double d2 = std::sqrt(x3p*x3p + y3p*y3p);
 
         double cosAlpha, sinAlpha;
         if (d2 < std::numeric_limits<double>::min())
@@ -449,7 +449,7 @@ namespace aspect
       GPlatesLookup<dim>::convert_tensor (const Tensor<1,in> &old_tensor) const
       {
         Tensor<1,out> new_tensor;
-        for (unsigned int i = 0; i < out; i++)
+        for (unsigned int i = 0; i < out; ++i)
           if (i < in) new_tensor[i] = old_tensor[i];
           else new_tensor[i] = 0.0;
 
@@ -468,7 +468,7 @@ namespace aspect
 
         const int gplates_1_3_version[3] = {1,6,322};
 
-        for (unsigned int i = 0; i < int_versions.size(); i++)
+        for (unsigned int i = 0; i < int_versions.size(); ++i)
           {
             if (int_versions[i] > gplates_1_3_version[i])
               return true;

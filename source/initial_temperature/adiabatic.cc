@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2011 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -196,17 +196,23 @@ namespace aspect
 
       if (cooling_model == "half-space cooling")
         {
+          if (age_top > 0.0 || age_bottom > 0.0)
+            AssertThrow (kappa > 0.0,
+                         ExcMessage ("The thermal diffusivity needs to be larger than zero "
+                                     "for computing thermal boundary layers with the half-space "
+                                     "cooling model."));
+
           // analytical solution for the thermal boundary layer from half-space cooling model
           surface_cooling_temperature = age_top > 0.0 ?
                                         (T_surface - adiabatic_surface_temperature) *
                                         erfc(this->get_geometry_model().depth(position) /
-                                             (2 * sqrt(kappa * age_top)))
+                                             (2 * std::sqrt(kappa * age_top)))
                                         : 0.0;
           bottom_heating_temperature = (age_bottom > 0.0 && this->get_adiabatic_conditions().is_initialized()) ?
                                        (T_bottom - adiabatic_bottom_temperature + subadiabaticity)
                                        * erfc((this->get_geometry_model().maximal_depth()
                                                - this->get_geometry_model().depth(position)) /
-                                              (2 * sqrt(kappa * age_bottom)))
+                                              (2 * std::sqrt(kappa * age_bottom)))
                                        : 0.0;
         }
 
@@ -218,11 +224,12 @@ namespace aspect
             }
           else
             {
-              const double exponential = -kappa * std::pow(numbers::PI, 2) * age_top / std::pow(lithosphere_thickness, 2);
-              double sum_terms = 0;
+              const double exponential = -kappa * Utilities::fixed_power<2>(numbers::PI) * age_top / Utilities::fixed_power<2>(lithosphere_thickness);
+              double sum_terms = 0.;
               for (unsigned int n=1; n<11; ++n)
                 {
-                  sum_terms += 1/(double)n * std::exp(std::pow((double)n, 2) * exponential) * std::sin((double)n * depth * numbers::PI / lithosphere_thickness);
+                  const auto dn = static_cast<double>(n);
+                  sum_terms += 1./dn * std::exp(dn * dn * exponential) * std::sin(dn * depth * numbers::PI / lithosphere_thickness);
                   surface_cooling_temperature = T_surface - adiabatic_surface_temperature + (adiabatic_surface_temperature - T_surface) * (depth / lithosphere_thickness + 2 / numbers::PI * sum_terms);
                 }
             }
@@ -407,7 +414,7 @@ namespace aspect
                              "profile for calculating the thermal diffusivity. "
                              "This function is one-dimensional and depends only on depth. The format of this "
                              "functions follows the syntax understood by the "
-                             "muparser library, see Section~\\ref{sec:muparser-format}.");
+                             "muparser library, see {ref}\\`sec:run-aspect:parameters-overview:muparser-format\\`.");
           prm.declare_entry ("Top boundary layer age model", "constant",
                              Patterns::Selection ("constant|function|ascii data"),
                              "How to define the age of the top thermal boundary layer. "

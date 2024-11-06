@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2014 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -55,6 +55,7 @@ namespace aspect
   {
     using namespace dealii;
     using namespace dealii::Utilities;
+
 
     /**
      * Given an array @p values, consider three cases:
@@ -287,6 +288,7 @@ namespace aspect
      *   Utilities::MapParsing::parse_map_to_double_array() function. Please
      *   use the other function instead.
      */
+    DEAL_II_DEPRECATED
     std::vector<double>
     parse_map_to_double_array (const std::string &key_value_map,
                                const std::vector<std::string> &list_of_keys,
@@ -356,6 +358,19 @@ namespace aspect
 
 
 
+    /**
+     * Given a point @p point, find out if any of the MPI
+     * processes own the cell in which this point lies. If
+     * not, the point lies outside the @p triangulation.
+     */
+    template <int dim>
+    bool
+    point_is_in_triangulation(const Mapping<dim> &mapping,
+                              const parallel::distributed::Triangulation<dim> &triangulation,
+                              const Point<dim> &point,
+                              const MPI_Comm mpi_communicator);
+
+
     namespace Coordinates
     {
 
@@ -369,10 +384,14 @@ namespace aspect
       WGS84_coordinates(const dealii::Point<dim> &position);
 
       /**
-       * Returns spherical coordinates of a Cartesian point. The returned array
-       * is filled with radius, phi and theta (polar angle). If the dimension is
-       * set to 2 theta is omitted. Phi is always normalized to [0,2*pi].
-       *
+       * Returns spherical coordinates of a Cartesian point. If `dim==3`, then
+       * the returned array contains the three values radius, phi, and theta
+       * (polar angle). In other words, the two angles correspond to longitude
+       * and *colatitude* (instead of latitude). If `dim==2`, then theta is omitted.
+       * The longitude Phi is always considered in the interval $[0,2\pi]$. Note
+       * that that implies that input files that use spherical coordinates also
+       * have to provide data using this convention, rather than providing their
+       * data from $-\pi$ (=180 degrees west) to $+\pi$ (=180 degrees east).
        */
       template <int dim>
       std::array<double,dim>
@@ -576,7 +595,7 @@ namespace aspect
      * @param comm MPI communicator to use.
      */
     bool fexists(const std::string &filename,
-                 MPI_Comm comm);
+                 const MPI_Comm comm);
 
     /**
      * Checks to see if the user is trying to use data from a url.
@@ -606,7 +625,7 @@ namespace aspect
      */
     std::string
     read_and_distribute_file_content(const std::string &filename,
-                                     const MPI_Comm &comm);
+                                     const MPI_Comm comm);
 
     /**
      * Collect the content of @p file_content using MPI_Gather to process 0.
@@ -623,7 +642,7 @@ namespace aspect
     void
     collect_and_write_file_content(const std::string &filename,
                                    const std::string &file_content,
-                                   const MPI_Comm &comm);
+                                   const MPI_Comm comm);
 
     /**
      * Creates a path as if created by the shell command "mkdir -p", therefore
@@ -652,8 +671,8 @@ namespace aspect
      * to true.
      */
     void create_directory(const std::string &pathname,
-                          const MPI_Comm &comm,
-                          bool silent);
+                          const MPI_Comm comm,
+                          const bool silent);
 
     /**
      * A namespace defining the cubic spline interpolation that can be used
@@ -728,6 +747,30 @@ namespace aspect
     std::string parenthesize_if_nonempty (const std::string &s);
 
     /**
+     * Given a string @p s, convert it to a boolean value.
+     */
+    bool
+    string_to_bool(const std::string &s);
+
+    /**
+     * Given a vector of strings @p s, convert it to a vector of boolean values.
+     */
+    std::vector<bool>
+    string_to_bool(const std::vector<std::string> &s);
+
+    /**
+     * Given a string @p s, convert it to an unsigned int.
+     */
+    unsigned int
+    string_to_unsigned_int(const std::string &s);
+
+    /**
+     * Given a vector of strings @p s, convert it to a vector of unsigned int values.
+     */
+    std::vector<unsigned int>
+    string_to_unsigned_int(const std::vector<std::string> &s);
+
+    /**
      * Returns if a vector of strings @p strings only contains unique
      * entries.
      */
@@ -798,17 +841,30 @@ namespace aspect
      *
      * The goal of this function is to find a factor $\alpha$ so that
      * $2\eta(\varepsilon(\mathbf u)) I \otimes I +  \alpha\left[a \otimes b + b \otimes a\right]$ remains a
-     * positive definite matrix. Here, $a=\varepsilon(\mathbf u)$ is the @p strain_rate
+     * positive definite rank-4 tensor (i.e., a positive definite operator mapping
+     * rank-2 tensors to rank-2 tensors). By definition, the whole operator
+     * is symmetric. In the definition above, $a=\varepsilon(\mathbf u)$ is the @p strain_rate
      * and $b=\frac{\partial\eta(\varepsilon(\mathbf u),p)}{\partial \varepsilon}$ is the derivative of the viscosity
      * with respect to the strain rate and is given by @p dviscosities_dstrain_rate. Since the viscosity $\eta$
      * must be positive, there is always a value of $\alpha$ (possibly small) so that the result is a positive
-     * definite matrix. In the best case, we want to choose $\alpha=1$ because that corresponds to the full Newton step,
+     * definite operator. In the best case, we want to choose $\alpha=1$ because that corresponds to the full Newton step,
      * and so the function never returns anything larger than one.
      *
-     * The factor is defined by:
-     * $\frac{2\eta(\varepsilon(\mathbf u))}{\left[1-\frac{b:a}{\|a\| \|b\|} \right]^2\|a\|\|b\|}$. Alpha is
-     * reset to a maximum of one, and if it is smaller then one, a safety_factor scales the alpha to make
-     * sure that the 1-alpha won't get to close to zero.
+     * One can do some algebra to determine what the optimal factor is. We did
+     * this in the Newton paper (Fraters et al., Geophysical Journal
+     * International, 2019) where we derived a factor of
+     * $\frac{2\eta(\varepsilon(\mathbf u))}{\left[1-\frac{b:a}{\|a\| \|b\|} \right]^2\|a\|\|b\|}$,
+     * which we reset to a maximum of one, and if it is smaller then one,
+     * a safety_factor scales the value to make sure that 1-alpha won't get to
+     * close to zero. However, as later pointed out by Yimin Jin, the computation
+     * is wrong, see https://github.com/geodynamics/aspect/issues/5555. Instead,
+     * the function now computes the factor as
+     * $(2 \eta) / (a:b + b:a)$, again capped at a maximal value of 1,
+     * and using a safety factor from below.
+     *
+     * In practice, $a$ and $b$ are almost always parallel to each other,
+     * and $a:b + b:a = 2a:b$, in which case one can drop the factor
+     * of $2$ everywhere in the computations.
      */
     template <int dim>
     double compute_spd_factor(const double eta,
@@ -1006,13 +1062,17 @@ namespace aspect
      * @p mpi_communicator The MPI Communicator of the problem.
      * @p output_filename An optional file name into which (if present) the solver history will
      *   be written.
+     *
+     * @note This function never returns normally. It always exits via an exception, either
+     *   of type ExcMessage (on rank 0 of the parallel computation) or QuietException (on all
+     *   other ranks).
      */
-    void linear_solver_failed(const std::string &solver_name,
-                              const std::string &function_name,
-                              const std::vector<SolverControl> &solver_controls,
-                              const std::exception &exc,
-                              const MPI_Comm &mpi_communicator,
-                              const std::string &output_filename = "");
+    void throw_linear_solver_failure_exception(const std::string &solver_name,
+                                               const std::string &function_name,
+                                               const std::vector<SolverControl> &solver_controls,
+                                               const std::exception &exc,
+                                               const MPI_Comm mpi_communicator,
+                                               const std::string &output_filename = "");
 
     /**
      * Conversion object where one can provide a function that returns
@@ -1105,10 +1165,30 @@ namespace aspect
      * @param random_number_generator a reference to a mt19937 random number generator.
      */
     std::vector<Tensor<2,3>>
-    rotation_matrices_random_draw_volume_weighting(const std::vector<double> volume_fractions,
-                                                   const std::vector<Tensor<2,3>> rotation_matrices,
+    rotation_matrices_random_draw_volume_weighting(const std::vector<double> &volume_fractions,
+                                                   const std::vector<Tensor<2,3>> &rotation_matrices,
                                                    const unsigned int n_output_matrices,
                                                    std::mt19937 &random_number_generator);
+
+    /**
+     * Wraps angle between 0 and 360 degrees.
+     */
+    double wrap_angle(const double angle);
+
+    /**
+     * Compute Z-X-Z Euler angles (https://en.wikipedia.org/wiki/Euler_angles) from rotation matrix.
+     * The Z-X-Z indicates the order of axis rotations to generate the Euler angles.
+     */
+    std::array<double,3> zxz_euler_angles_from_rotation_matrix(const Tensor<2,3> &rotation_matrix);
+
+    /**
+     * Compute rotation matrix from Z-X-Z Euler angles (https://en.wikipedia.org/wiki/Euler_angles)
+     * The Z-X-Z indicates the order of axis axis rotations to generate the Euler angles.
+     */
+    Tensor<2,3> zxz_euler_angles_to_rotation_matrix(const double phi1,
+                                                    const double theta,
+                                                    const double phi2);
+
   }
 }
 
@@ -1196,6 +1276,114 @@ namespace aspect
         return vector[i];
       });
       return sorted_vec;
+    }
+
+    /**
+     * Contains utility functions related to tensors.
+     */
+    namespace Tensors
+    {
+      /**
+       * Convert a series of doubles to a SymmetricTensor of the same size.
+       * The input is expected to be ordered according to the
+       * SymmetricTensor::unrolled_to_component_indices() function.
+       */
+      template <int dim, class Iterator>
+      inline
+      SymmetricTensor<2,dim>
+      to_symmetric_tensor(const Iterator begin,
+                          const Iterator end)
+      {
+        AssertDimension(std::distance(begin, end), (SymmetricTensor<2,dim>::n_independent_components));
+        (void) end;
+
+        SymmetricTensor<2,dim> output;
+
+        Iterator next = begin;
+        for (unsigned int i=0; i < SymmetricTensor<2,dim>::n_independent_components; ++i, ++next)
+          output[SymmetricTensor<2,dim>::unrolled_to_component_indices(i)] = *next;
+
+        return output;
+      }
+
+      /**
+       * Unroll a SymmetricTensor into a series of doubles. The output is ordered
+       * according to the SymmetricTensor::unrolled_to_component_indices() function.
+       */
+      template <int dim, class Iterator>
+      inline
+      void
+      unroll_symmetric_tensor_into_array(const SymmetricTensor<2,dim> &tensor,
+                                         const Iterator begin,
+                                         const Iterator end)
+      {
+        AssertDimension(std::distance(begin, end), (SymmetricTensor<2,dim>::n_independent_components));
+        (void) end;
+
+        Iterator next = begin;
+        for (unsigned int i=0; i < SymmetricTensor<2,dim>::n_independent_components; ++i, ++next)
+          *next = tensor[SymmetricTensor<2,dim>::unrolled_to_component_indices(i)];
+      }
+
+      /**
+       * Rotate a 3D 4th order tensor representing the full stiffnexx matrix using a 3D 2nd order rotation tensor
+       */
+      SymmetricTensor<4,3>
+      rotate_full_stiffness_tensor(const Tensor<2,3> &rotation_tensor, const SymmetricTensor<4,3> &input_tensor);
+
+      /**
+       * Rotate a 6x6 voigt stiffness matrix using a 2nd order Voigt stiffness tensor.
+       * See https://en.wikipedia.org/wiki/Voigt_notation for more info on the Voigt notation.
+       */
+      SymmetricTensor<2,6>
+      rotate_voigt_stiffness_matrix(const Tensor<2,3> &rotation_tensor, const SymmetricTensor<2,6> &input_tensor);
+
+      /**
+       * Transform a 4th order full stiffness tensor into a 6x6 Voigt stiffness matrix.
+       * See https://en.wikipedia.org/wiki/Voigt_notation for more info on the Voigt notation.
+       */
+      SymmetricTensor<2,6>
+      to_voigt_stiffness_matrix(const SymmetricTensor<4,3> &input_tensor);
+
+      /**
+       * Transform a 6x6 Voigt stiffness matrix into a 4th order full stiffness tensor.
+       * See https://en.wikipedia.org/wiki/Voigt_notation for more info on the Voigt notation.
+       */
+      SymmetricTensor<4,3>
+      to_full_stiffness_tensor(const SymmetricTensor<2,6> &input_tensor);
+
+      /**
+       * Form a 21D voigt stiffness vector from a 6x6 Voigt stiffness matrix.
+       * See https://en.wikipedia.org/wiki/Voigt_notation for more info on the Voigt notation.
+       */
+      Tensor<1,21>
+      to_voigt_stiffness_vector(const SymmetricTensor<2,6> &input_tensor);
+
+      /**
+       * Form a 21D voigt stiffness vector from a 6x6 Voigt stiffness matrix.
+       * See https://en.wikipedia.org/wiki/Voigt_notation for more info on the Voigt notation.
+       */
+      SymmetricTensor<2,6>
+      to_voigt_stiffness_matrix(const Tensor<1,21> &input_tensor);
+
+      /**
+       * Transform a 4th order full stiffness tensor into a 21D Voigt stiffness vector.
+       * See https://en.wikipedia.org/wiki/Voigt_notation for more info on the Voigt notation.
+       */
+      Tensor<1,21>
+      to_voigt_stiffness_vector(const SymmetricTensor<4,3> &input);
+
+
+      /**
+       * Return the Levi-Civita tensor, also called a permutation or "totally antisymmetric" tensor.
+       * See https://en.wikipedia.org/wiki/Levi-Civita_symbol for a definition.
+       */
+      template <int dim>
+      const Tensor<dim,dim> &levi_civita();
+
+      // Declare the existence of a specialization:
+      template <>
+      const Tensor<3,3> &levi_civita<3>();
     }
 
   }

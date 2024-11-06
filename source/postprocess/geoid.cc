@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015 - 2023 by the authors of the ASPECT code.
+ Copyright (C) 2015 - 2024 by the authors of the ASPECT code.
 
  This file is part of ASPECT.
 
@@ -131,7 +131,7 @@ namespace aspect
                   {
                     fe_values.reinit (cell);
                     // Set use_strain_rates to false since we don't need viscosity.
-                    in.reinit(fe_values, cell, this->introspection(), this->get_solution(), false);
+                    in.reinit(fe_values, cell, this->introspection(), this->get_solution());
 
                     this->get_material_model().evaluate(in, out);
 
@@ -149,9 +149,15 @@ namespace aspect
 
                         const double density = out.densities[q];
                         const double r_q = in.position[q].norm();
+                        const double JxW = fe_values.JxW(q);
 
-                        integrated_density_cos_component += density * (1./r_q) * std::pow(r_q/outer_radius,ideg+1) * cos_component * fe_values.JxW(q);
-                        integrated_density_sin_component += density * (1./r_q) * std::pow(r_q/outer_radius,ideg+1) * sin_component * fe_values.JxW(q);
+#if DEAL_II_VERSION_GTE(9,6,0)
+                        integrated_density_cos_component += density * (1./r_q) * Utilities::pow(r_q/outer_radius,ideg+1) * cos_component * JxW;
+                        integrated_density_sin_component += density * (1./r_q) * Utilities::pow(r_q/outer_radius,ideg+1) * sin_component * JxW;
+#else
+                        integrated_density_cos_component += density * (1./r_q) * std::pow(r_q/outer_radius,ideg+1) * cos_component * JxW;
+                        integrated_density_sin_component += density * (1./r_q) * std::pow(r_q/outer_radius,ideg+1) * sin_component * JxW;
+#endif
                       }
                   }
               SH_density_coecos.push_back(integrated_density_cos_component);
@@ -182,7 +188,7 @@ namespace aspect
     {
       // Get a pointer to the boundary densities postprocessor.
       const Postprocess::BoundaryDensities<3> &boundary_densities =
-        this->get_postprocess_manager().template get_matching_postprocessor<Postprocess::BoundaryDensities<3>>();
+        this->get_postprocess_manager().template get_matching_active_plugin<Postprocess::BoundaryDensities<3>>();
 
       const double top_layer_average_density = boundary_densities.density_at_top();
       const double bottom_layer_average_density = boundary_densities.density_at_bottom();
@@ -270,7 +276,7 @@ namespace aspect
                       {
                         // Get a reference to the dynamic topography postprocessor.
                         const Postprocess::DynamicTopography<3> &dynamic_topography =
-                          this->get_postprocess_manager().template get_matching_postprocessor<Postprocess::DynamicTopography<3>>();
+                          this->get_postprocess_manager().template get_matching_active_plugin<Postprocess::DynamicTopography<3>>();
 
                         // Get the already-computed dynamic topography solution.
                         const LinearAlgebra::BlockVector &topo_vector = dynamic_topography.topography_vector();
@@ -317,7 +323,7 @@ namespace aspect
                       {
                         // Get a reference to the dynamic topography postprocessor.
                         const Postprocess::DynamicTopography<3> &dynamic_topography =
-                          this->get_postprocess_manager().template get_matching_postprocessor<Postprocess::DynamicTopography<3>>();
+                          this->get_postprocess_manager().template get_matching_active_plugin<Postprocess::DynamicTopography<3>>();
 
                         // Get the already-computed dynamic topography solution.
                         const LinearAlgebra::BlockVector &topo_vector = dynamic_topography.topography_vector();
@@ -466,10 +472,17 @@ namespace aspect
                   surface_topo_contribution_coecos.push_back(coecos_surface_topo);
                   surface_topo_contribution_coesin.push_back(coesin_surface_topo);
 
+#if DEAL_II_VERSION_GTE(9,6,0)
+                  const double coecos_CMB_topo = (4 * numbers::PI * G / (surface_gravity * (2 * ideg + 1)))
+                                                 * CMB_delta_rho*SH_CMB_topo_coes.second.first.at(ind)*inner_radius*Utilities::pow(inner_radius/outer_radius,ideg+1);
+                  const double coesin_CMB_topo = (4 * numbers::PI * G / (surface_gravity * (2 * ideg + 1)))
+                                                 * CMB_delta_rho*SH_CMB_topo_coes.second.second.at(ind)*inner_radius*Utilities::pow(inner_radius/outer_radius,ideg+1);
+#else
                   const double coecos_CMB_topo = (4 * numbers::PI * G / (surface_gravity * (2 * ideg + 1)))
                                                  * CMB_delta_rho*SH_CMB_topo_coes.second.first.at(ind)*inner_radius*std::pow(inner_radius/outer_radius,ideg+1);
                   const double coesin_CMB_topo = (4 * numbers::PI * G / (surface_gravity * (2 * ideg + 1)))
                                                  * CMB_delta_rho*SH_CMB_topo_coes.second.second.at(ind)*inner_radius*std::pow(inner_radius/outer_radius,ideg+1);
+#endif
                   CMB_topo_contribution_coecos.push_back(coecos_CMB_topo);
                   CMB_topo_contribution_coesin.push_back(coesin_CMB_topo);
 
@@ -592,7 +605,7 @@ namespace aspect
           // On processor 0, collect all the data and put them into the output density anomaly contribution SH coefficients file.
           if (dealii::Utilities::MPI::this_mpi_process(this->get_mpi_communicator()) == 0)
             {
-              std::ofstream density_anomaly_contribution_SH_coes_file (density_anomaly_contribution_SH_coes_filename.c_str());
+              std::ofstream density_anomaly_contribution_SH_coes_file (density_anomaly_contribution_SH_coes_filename);
               density_anomaly_contribution_SH_coes_file << "# "
                                                         << "degree order cosine_coefficient sine_coefficient"
                                                         << std::endl;
@@ -636,7 +649,7 @@ namespace aspect
           // and put them into the output surface topography contribution SH coefficients file.
           if (dealii::Utilities::MPI::this_mpi_process(this->get_mpi_communicator()) == 0)
             {
-              std::ofstream surface_topo_contribution_SH_coes_file (surface_topo_contribution_SH_coes_filename.c_str());
+              std::ofstream surface_topo_contribution_SH_coes_file (surface_topo_contribution_SH_coes_filename);
               surface_topo_contribution_SH_coes_file << "# "
                                                      << "degree order cosine_coefficient sine_coefficient"
                                                      << std::endl;
@@ -683,7 +696,7 @@ namespace aspect
           // to get the data. On processor 0, collect all the data and put them into the output CMB topography contribution SH coefficients file.
           if (dealii::Utilities::MPI::this_mpi_process(this->get_mpi_communicator()) == 0)
             {
-              std::ofstream CMB_topo_contribution_SH_coes_file (CMB_topo_contribution_SH_coes_filename.c_str());
+              std::ofstream CMB_topo_contribution_SH_coes_file (CMB_topo_contribution_SH_coes_filename);
               CMB_topo_contribution_SH_coes_file << "# "
                                                  << "degree order cosine_coefficient sine_coefficient"
                                                  << std::endl;
@@ -730,7 +743,7 @@ namespace aspect
           // On processor 0, collect all the data and put them into the output geoid anomaly SH coefficients file.
           if (dealii::Utilities::MPI::this_mpi_process(this->get_mpi_communicator()) == 0)
             {
-              std::ofstream geoid_anomaly_SH_coes_file (geoid_anomaly_SH_coes_filename.c_str());
+              std::ofstream geoid_anomaly_SH_coes_file (geoid_anomaly_SH_coes_filename);
               geoid_anomaly_SH_coes_file << "# "
                                          << "degree order cosine_coefficient sine_coefficient"
                                          << std::endl;
@@ -931,9 +944,6 @@ namespace aspect
       {
         prm.enter_subsection("Geoid");
         {
-          prm.declare_entry("Include the contributon from dynamic topography", "true",
-                            Patterns::Bool(),
-                            "Option to include the contribution from dynamic topography on geoid. The default is true.");
           prm.declare_entry("Include surface topography contribution", "true",
                             Patterns::Bool(),
                             "Option to include the contribution from surface topography on geoid. The default is true.");
@@ -952,7 +962,7 @@ namespace aspect
           prm.declare_entry("Output data in geographical coordinates", "false",
                             Patterns::Bool(),
                             "Option to output the geoid anomaly in geographical coordinates (latitude and longitude). "
-                            "The default is false, so postprocess will output the data in geocentric coordinates (x,y,z) as normally.");
+                            "The default is false, so the postprocessor will output the data in geocentric coordinates (x,y,z) as normally.");
           prm.declare_entry("Density above","0.",
                             Patterns::Double (0.),
                             "The density value above the surface boundary.");
@@ -962,7 +972,7 @@ namespace aspect
           prm.declare_entry("Output geoid anomaly coefficients", "false",
                             Patterns::Bool(),
                             "Option to output the spherical harmonic coefficients of the geoid anomaly up to the maximum degree. "
-                            "The default is false, so postprocess will only output the geoid anomaly in grid format. ");
+                            "The default is false, so the postprocessor will only output the geoid anomaly in grid format. ");
           prm.declare_entry("Output surface topography contribution coefficients", "false",
                             Patterns::Bool(),
                             "Option to output the spherical harmonic coefficients of the surface topography contribution "
@@ -1001,13 +1011,6 @@ namespace aspect
       {
         prm.enter_subsection("Geoid");
         {
-          const bool include_topo_contribution = prm.get_bool ("Include the contributon from dynamic topography");
-
-          AssertThrow (include_topo_contribution == true,
-                       ExcMessage("The parameter 'Include the contributon from dynamic topography' has been "
-                                  " replaced by the two parameters 'Include surface topography contribution' and "
-                                  "'Include CMB topography contribution'. Please use them instead."));
-
           include_surface_topo_contribution = prm.get_bool ("Include surface topography contribution");
           include_CMB_topo_contribution = prm.get_bool ("Include CMB topography contribution");
           max_degree = prm.get_integer ("Maximum degree");

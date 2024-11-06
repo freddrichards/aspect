@@ -73,7 +73,7 @@ namespace aspect
 
       // see if output is requested at this time
       if (this->get_time() < last_output_time + output_interval)
-        return std::pair<std::string,std::string>();
+        return {"", ""};
 
       DataPoint data_point;
       data_point.time       = this->get_time();
@@ -154,7 +154,7 @@ namespace aspect
 
                   const std::string filename = (filename_prefix +
                                                 DataOutBase::default_suffix(output_format));
-                  std::ofstream f (filename.c_str());
+                  std::ofstream f (filename);
 
 
                   if (output_format == DataOutBase::gnuplot)
@@ -174,7 +174,7 @@ namespace aspect
               else
                 {
                   const std::string filename (this->get_output_directory() + "depth_average.txt");
-                  std::ofstream f(filename.c_str(), std::ofstream::out);
+                  std::ofstream f(filename, std::ofstream::out);
 
                   // Write the header
                   f << "#       time" << "        depth";
@@ -269,7 +269,7 @@ namespace aspect
             "velocity magnitude|sinking velocity|rising velocity|Vs|Vp|log viscosity|"
             "viscosity|vertical heat flux|vertical mass flux|composition mass";
           prm.declare_entry("List of output variables", "all",
-                            Patterns::MultipleSelection(variables.c_str()),
+                            Patterns::MultipleSelection(variables),
                             "A comma separated list which specifies which quantities to "
                             "average in each depth slice. It defaults to averaging all "
                             "available quantities, but this can be an expensive operation, "
@@ -449,9 +449,15 @@ namespace aspect
     void
     DepthAverage<dim>::save (std::map<std::string, std::string> &status_strings) const
     {
+      // Serialize into a stringstream. Put the following into a code
+      // block of its own to ensure the destruction of the 'oa'
+      // archive triggers a flush() on the stringstream so we can
+      // query the completed string below.
       std::ostringstream os;
-      aspect::oarchive oa (os);
-      oa << (*this);
+      {
+        aspect::oarchive oa (os);
+        oa << (*this);
+      }
 
       status_strings["DepthAverage"] = os.str();
     }

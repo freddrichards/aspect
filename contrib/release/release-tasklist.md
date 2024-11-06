@@ -1,67 +1,71 @@
 # Release Tasklist
 
 ## Leading up to a release
-- send out an email about problems or outstanding patches
-- go through the list of TODOs in the source code and see what can be done
-- make sure the description of the interfaces that need to be updated
-    are up to date in the manual
-- update the used deal.II version for the Docker container in `contrib/docker/docker/Dockerfile`
-    and in the manual
-- check that `README.md` and https://aspect.geodynamics.org/ is up-to-date
+- Send out an email about problems or outstanding patches
+- Go through the list of TODOs in the source code and see what can be done
+- Go through the list of issues marked as bugs (https://github.com/geodynamics/aspect/issues?q=is%3Aissue+is%3Aopen+label%3Abug) and see which have to be fixed
+- Go through the list of open pull requests and decide which ones have to go into the release, postpone all others
+- Check that the used deal.II version for the Docker container in [contrib/docker/docker/Dockerfile](https://github.com/geodynamics/aspect/blob/main/contrib/docker/docker/Dockerfile) and in the manual is appropriate for the release
+- Check that [README.md](https://github.com/geodynamics/aspect/blob/main/README.md) and https://aspect.geodynamics.org/ is up-to-date
 and the links are working
-- run (and be patient):
+- Run (and be patient), if any cookbooks/benchmarks fail, find a fix or open an issue as broken:
 
   ```
   cd benchmarks && make -f check.mk BUILD=$BUILDDIR -j4
   cd cookbooks && make -f check.mk BUILD=$BUILDDIR -j4
   ```
 
-- determine new version roughly following semantic versioning: http://semver.org/
-  - format is X.Y.Z for a release, X.Y.Z-pre for the dev version or X.Y.Z-rcW for release candidates
-  - backwards incompatible changes require incrementing X, adding features incrementing Y
-
-- setup:
+- Find and fix doxygen errors:
 
   ```
-  export OLDVER=2.0.0
-  export VER=2.1.0
-  export VERSHORT=2.1
-  export NEXTVER=2.2.0-pre
-  # Make sure DEALSRCDIR is set to correct path
-  export DEALSRCDIR=$DEAL_II_DIR
-  ```
-
-- fix doxygen errors:
-
-  ```
+  git checkout -b pre-release-tasks
   find include -name "*h" -print | xargs -n 1 $DEALSRCDIR/contrib/utilities/checkdoxygen.py
+  git commit -a -m "doxygen fixes"
   ```
 
-  and commit.
-- manual, check for missing labels:
+- Build doxygen and manual, check for missing labels and for warnings, fix if possible:
 
   ```
   cd doc
-  make manual.pdf
-  grep undefined manual/manual.log    # try to fix some
   make aspect.tag
+  cd sphinx
+  make html
+  cd ../..
   ```
 
-  and check for warnings
-- fix formatting, copyright years:
+- Check and fix doxygen documentation. some of the changes of the script will destroy intentional indentation. Go through the list of changes manually and decide which ones to include.
+  ```
+  find . -name "*.h" -not -wholename "*/doc/modules/*" -not -wholename "*/contrib/world_builder/*" -print | while read file;do $DEALSRCDIR/contrib/utilities/wrapcomments.py $file >temp;mv temp $file;done
+  git add -p
+  git checkout .
+  ```
 
-  ```
-  find . -name "*.h" -print | while read file;do $DEALSRCDIR/contrib/utilities/wrapcomments.py $file >temp;mv temp $file;done
-  ```
-- note: we started ignoring the rewrapping of comments, but we should still fix wrong indentation or other problems
+- Fix formatting, copyright years:
 
   ```
   ./contrib/utilities/indent
   ./contrib/release/update_copyright.sh
-  git commit -a -m "doxygen formatting, comment wrapping"
+  git commit -a -m "doxygen formatting, update copyright years"
   ```
 
-## Create a pull-request
+- Create a pull request with the pre release tasks
+
+## Create a release pull-request
+- determine new version roughly following semantic versioning: http://semver.org/
+  - format is X.Y.Z for a release, X.Y.Z-pre for the dev version or X.Y.Z-rcW for release candidates
+  - backwards incompatible changes require incrementing X, adding features incrementing Y
+
+  setup version numbers:
+
+  ```
+  export OLDVER=2.4.0
+  export VER=2.5.0
+  export VERSHORT=2.5
+  export NEXTVER=2.6.0-pre
+  # Make sure DEALSRCDIR is set to correct path
+  export DEALSRCDIR=$DEAL_II_DIR
+  ```
+
 - create branch for main PR to update changes.h in doc/modules:
 
   ```
@@ -83,11 +87,11 @@ and the links are working
 - compile aspect, make sure you have a symlink in the main directory for the next step
   - make sure the WorldBuilder is using the included version
 
-- update doc/manual/parameters.tex and documentation:
+- update parameters and documentation:
 
   ```
-  cd doc && ./update_parameters.sh && make manual.pdf && cp manual.pdf manual-$VER.pdf && cd .. && \
-  git add doc/manual/parameters.tex && \
+  cd doc && ./update_parameters.sh && cd sphinx && make html && cd ../.. && \
+  git add doc/sphinx/parameters && \
   git commit -m "release task: update manual"
   ```
 
@@ -111,7 +115,7 @@ and the links are working
 
 - create a tar file:
   ```
-  cd doc && make manual.pdf && cp manual.pdf ../aspect-manual-$TAG.pdf && cd ..
+  cd doc/sphinx && make html && cd ..
   export PREFIX=aspect-$TAG && rm -rf $PREFIX.tar.gz && \
   git archive --format=tar.gz --prefix=$PREFIX/ HEAD >temp.tar.gz && \
   rm -fr $PREFIX/ && \
@@ -153,7 +157,7 @@ and the links are working
   sha1sum aspect-$TAG.tar.gz aspect-manual-$TAG.pdf >sha1sum-$TAG.txt
   ```
 
-- create a release on github, upload .tar.gz and manual-$VER.pdf
+- create a release on github, upload .tar.gz
 - update website (www branch):
   - header.include: add link to changes
   - index.html: add news entry
@@ -163,34 +167,124 @@ and the links are working
   - title: ASPECT v2.0.0
   - license: GPL 2
   - check CIG comments: https://github.com/geodynamics/best_practices/blob/master/ZenodoBestPractices.md
-  - cig community!
-  - update zenodo badge in README.md to newest version (see badge button on the right of zenodo page)
-  - add zenodo badge also to the release on github (on top, see 2.0.1 for an example)
-  - readme / release notes: add zenodo DOI button
-  - manual/manual.bib: add new zenodo entry
-. create figshare DOI for manual (just upload a new version as the same entry)
-  - update manual/manual.bib entry
-. update doc/manual/manual.bib with src and manual doi
-. update aspect.geodynamics.org/cite.html and citing.html in www repo:
+  - add to "Computational Infrastructure for Geodynamics" community
+  - update Zenodo button on main readme (see badge button on the right of zenodo page)
+  - doc/sphinx/references.bib: add new zenodo entry
+- add to github release:
+    - Zenodo button
+    - [![pdf manual](https://img.shields.io/badge/get-PDF-green.svg)](https://doi.org/10.6084/m9.figshare.4865333)
+    - [![online manual](https://img.shields.io/badge/online-manual-red)](https://aspect-documentation.readthedocs.io/en/v2.5.0/)
+- create figshare DOI for manual (just upload a new version as the same entry)
+  - update doc/sphinx/references.bib entry
+- update doc/sphinx/references.bib with src and manual doi
+- update aspect.geodynamics.org/cite.html and citing.html in www repo:
   - add new version in citing.html, search for "<option"
   - doc/make_cite_html.py:
     - add new version, update doc/zenodo dois
   - run aspect/doc/ python3 make_cite_html.py add to www
-. update http://geodynamics.org/cig/software/aspect/:
-      update current release number
-      create entry for the new release
-      update the list of contributors
-      ...
-. update docker image geodynamics/aspect:
-  - modify contrib/docker/docker/Dockerfile and contrib/docker/docker/build.sh to checkout the release
-    cd contrib/docker/docker && ./build.sh
-    docker push geodynamics/aspect:v$TAG
-. update the spack installation package with the latest tarball, 
-  see https://github.com/spack/spack/pull/13830 for an example
-. announce on
-      cig-all@geodynamics.org
-      https://community.geodynamics.org/c/aspect
-      dealii@googlegroups.com
+- update http://geodynamics.org/cig/software/aspect/:
+  - update current release number
+  - create entry for the new release
+  - update the list of contributors
+
+- update the spack installation package with the latest tarball,
+  see https://github.com/spack/spack/pull/13830 for an example:
+      spack checksum aspect
+
+- announce on
+  - cig-all@geodynamics.org
+  - https://community.geodynamics.org/c/aspect
+  - dealii@googlegroups.com
+
+## List of prior release notes
+
+Announcement for 2.5.0 (July 8, 2023)
+-----------------------------------------
+We are pleased to announce the release of ASPECT 2.5.0. ASPECT is the Advanced
+Solver for Problems in Earth's ConvecTion. It uses modern numerical methods such
+as adaptive mesh refinement, multigrid solvers, and a modular software design to
+provide a fast, flexible, and extensible mantle convection solver. ASPECT is
+available from
+
+                   https://aspect.geodynamics.org/
+
+and the release is available from
+
+        https://geodynamics.org/resources/aspect
+
+and
+
+        https://github.com/geodynamics/aspect/releases/tag/v2.5.0
+
+Among others this release includes the following significant changes:
+
+- ASPECT now includes version 0.5.0 of the Geodynamic World Builder.
+  (Menno Fraters and other contributors)
+
+- ASPECT's manual has been converted from LaTeX to Markdown to be hosted as a
+  website at https://aspect-documentation.readthedocs.io.
+  (Chris Mills, Mack Gregory, Timo Heister, Wolfgang Bangerth, Rene
+  Gassmoeller, and many others)
+
+- New: ASPECT now requires deal.II 9.4 or newer.
+  (Rene Gassmoeller, Timo Heister)
+
+- ASPECT now supports a DebugRelease build type that creates a debug build and
+  a release build of ASPECT at the same time.  It can be enabled by setting the
+  CMake option CMAKE_BUILD_TYPE to DebugRelease or by typing "make debugrelease".
+  (Timo Heister)
+
+- ASPECT now has a CMake option ASPECT_INSTALL_EXAMPLES that allows building
+  and install all cookbooks and benchmarks. ASPECT now additionally installs
+  the data/ directory. Both changes are helpful for installations that are used
+  for teaching and tutorials.
+  (Rene Gassmoeller)
+
+- Changed: ASPECT now releases the memory used for storing initial conditions
+  and the Geodynamic World Builder after model initialization unless an
+  owning pointer to these objects is kept. This reduces the memory footprint
+  for models initialized from large data files.
+  (Wolfgang Bangerth)
+
+- Added: Various helper functions to distinguish phase transitions for
+  different compositions and compositional fields of different types.
+  (Bob Myhill)
+
+- Added: The 'adiabatic' initial temperature plugin can now use a spatially
+  variable top boundary layer thickness read from a data file or specified as a
+  function in the input file. Additionally, the boundary layer temperature can
+  now also be computed following the plate cooling model instead of the
+  half-space cooling model.
+  (Daniel Douglas, John Naliboff, Juliane Dannberg, Rene Gassmoeller)
+
+- New: ASPECT now supports tangential velocity boundary conditions with GMG for
+  more geometries, such as 2D and 3D chunks.
+  (Timo Heister, Haoyuan Li, Jiaqi Zhang)
+
+- New: Phase transitions can now be deactivated outside a given temperature
+  range specified by upper and lower temperature limits for each phase
+  transition. This allows implementing complex phase diagrams with transitions
+  that intersect in pressure-temperature space.
+  (Haoyuan Li)
+
+- New: There is now a postprocessor that outputs the total volume of the
+  computational domain. This can be helpful for models using mesh deformation.
+  (Anne Glerum)
+
+- New: Added a particle property 'grain size' that tracks grain size evolution
+  on particles using the 'grain size' material model.
+  (Juliane Dannberg, Rene Gassmoeller)
+
+- Fixed: Many bugs, see link below for a complete list.
+  (Many authors. Thank you!).
+
+A complete list of all changes and their authors can be found at
+  https://aspect.geodynamics.org/doc/doxygen/changes_between_2_84_80_and_2_85_80.html
+
+Wolfgang Bangerth, Juliane Dannberg, Menno Fraters, Rene Gassmoeller,
+Anne Glerum, Timo Heister, Bob Myhill, John Naliboff,
+and many other contributors.
+
 
 Announcement for 2.4.0 (July 25, 2022)
 -----------------------------------------

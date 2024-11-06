@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2011 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -43,7 +43,7 @@ namespace aspect
     void move_file (const std::string &old_name,
                     const std::string &new_name)
     {
-      int error = system (("mv " + old_name + " " + new_name).c_str());
+      int error = std::system (("mv " + old_name + " " + new_name).c_str());
 
       // If the above call failed, e.g. because there is no command-line
       // available, try with internal functions.
@@ -91,12 +91,13 @@ namespace aspect
       oa << parameters.use_discontinuous_temperature_discretization;
       oa << parameters.use_discontinuous_composition_discretization;
       oa << parameters.temperature_degree;
-      oa << parameters.composition_degree;
+      oa << parameters.composition_degrees;
       oa << parameters.pressure_normalization;
       oa << parameters.n_compositional_fields;
       oa << parameters.names_of_compositional_fields;
       oa << parameters.normalized_fields;
       oa << parameters.mesh_deformation_enabled;
+      oa << parameters.n_particle_managers;
     }
 
 
@@ -178,7 +179,7 @@ namespace aspect
                                "These need to be the same during restarting "
                                "from a checkpoint."));
 
-      bool use_discontinuous_composition_discretization;
+      std::vector<bool> use_discontinuous_composition_discretization;
       ia >> use_discontinuous_composition_discretization;
       AssertThrow (use_discontinuous_composition_discretization == parameters.use_discontinuous_composition_discretization,
                    ExcMessage ("The value provided for `Use discontinuous composition discretization' that was stored "
@@ -196,9 +197,9 @@ namespace aspect
                                "These need to be the same during restarting "
                                "from a checkpoint."));
 
-      unsigned int composition_degree;
-      ia >> composition_degree;
-      AssertThrow (composition_degree == parameters.composition_degree,
+      std::vector<unsigned int> composition_degrees;
+      ia >> composition_degrees;
+      AssertThrow (composition_degrees == parameters.composition_degrees,
                    ExcMessage ("The composition polynomial degree that was stored "
                                "in the checkpoint file is not the same as the one "
                                "you currently set in your input file. "
@@ -260,6 +261,14 @@ namespace aspect
                                "These need to be the same during restarting "
                                "from a checkpoint."));
 
+      unsigned int n_particle_managers;
+      ia >> n_particle_managers;
+      AssertThrow (n_particle_managers == parameters.n_particle_managers,
+                   ExcMessage ("The number of particle systems that were stored "
+                               "in the checkpoint file is not the same as the one "
+                               "you currently set in your input file. "
+                               "These need to be the same during restarting "
+                               "from a checkpoint."));
     }
   }
 
@@ -308,7 +317,7 @@ namespace aspect
 
       signals.pre_checkpoint_store_user_data(triangulation);
 
-      triangulation.save ((parameters.output_directory + "restart.mesh.new").c_str());
+      triangulation.save (parameters.output_directory + "restart.mesh.new");
     }
 
     // save general information This calls the serialization functions on all
@@ -317,10 +326,15 @@ namespace aspect
     {
       std::ostringstream oss;
 
-      // serialize into a stringstream
-      aspect::oarchive oa (oss);
-      save_critical_parameters (this->parameters, oa);
-      oa << (*this);
+      // Serialize into a stringstream. Put the following into a code
+      // block of its own to ensure the destruction of the 'oa'
+      // archive triggers a flush() on the stringstream so we can
+      // query its properties below.
+      {
+        aspect::oarchive oa (oss);
+        save_critical_parameters (this->parameters, oa);
+        oa << (*this);
+      }
 
       // compress with zlib and write to file on the root processor
 #ifdef DEAL_II_WITH_ZLIB
@@ -344,7 +358,7 @@ namespace aspect
                 static_cast<uint32_t>(compressed_data_length)
               }; /* list of compressed sizes of blocks */
 
-          std::ofstream f ((parameters.output_directory + "restart.resume.z.new").c_str());
+          std::ofstream f ((parameters.output_directory + "restart.resume.z.new"));
           f.write(reinterpret_cast<const char *>(compression_header), 4 * sizeof(compression_header[0]));
           f.write(reinterpret_cast<char *>(&compressed_data[0]), compressed_data_length);
           f.close();
@@ -523,7 +537,7 @@ namespace aspect
     // now that we have resumed from the snapshot load the mesh and solution vectors
     try
       {
-        triangulation.load ((parameters.output_directory + "restart.mesh").c_str());
+        triangulation.load (parameters.output_directory + "restart.mesh");
       }
     catch (...)
       {

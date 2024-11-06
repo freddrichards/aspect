@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2023 by the authors of the ASPECT code.
+  Copyright (C) 2023 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -78,7 +78,13 @@ namespace aspect
         void
         parse_parameters (ParameterHandler &prm) override;
 
-      protected:
+        /**
+         * A function that returns the slab_boundary object to allow access
+         * in other places.
+         */
+        const Utilities::AsciiDataBoundary<dim> &get_slab_boundary() const;
+
+      private:
         /**
          * An object of ascii data boundary to input subducted slab depths
          * and thicknesses.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2011 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -90,6 +90,7 @@ namespace aspect
 
   namespace BoundaryTraction
   {
+    template <int dim> class Manager;
     template <int dim> class Interface;
   }
 
@@ -139,7 +140,12 @@ namespace aspect
 
   namespace Particle
   {
-    template <int dim> class World;
+    template <int dim> class Manager;
+  }
+
+  namespace TimeStepping
+  {
+    template <int dim> class Manager;
   }
 
   /**
@@ -281,6 +287,14 @@ namespace aspect
       get_timestep_number () const;
 
       /**
+       * Return a reference to the manager of the time stepping strategies.
+       * This can then be used, for example, to check whether a checkpoint needs to
+       * be made upon termination.
+       */
+      const TimeStepping::Manager<dim> &
+      get_timestepping_manager() const;
+
+      /**
        * Return the current nonlinear iteration number of a time step.
        */
       unsigned int
@@ -376,6 +390,12 @@ namespace aspect
        */
       unsigned int
       n_compositional_fields () const;
+
+      /**
+       * Return the simulation end time in seconds.
+       */
+      double
+      get_end_time () const;
 
       /**
        * Compute the error indicators in the same way they are normally used
@@ -596,11 +616,13 @@ namespace aspect
       get_boundary_composition_manager () const;
 
       /**
-       * Return a reference to the object that describes traction
-       * boundary conditions.
+       * Return an reference to the manager of the boundary traction models.
+       * This can then, for example, be used to get the names of the boundary traction
+       * models used in a computation, or to compute the boundary traction
+       * for a given position.
        */
-      const std::map<types::boundary_id,std::unique_ptr<BoundaryTraction::Interface<dim>>> &
-      get_boundary_traction () const;
+      const BoundaryTraction::Manager<dim> &
+      get_boundary_traction_manager () const;
 
       /**
        * Return a reference to the manager of the initial temperature models.
@@ -909,20 +931,26 @@ namespace aspect
       get_postprocess_manager () const;
 
       /**
-       * Returns a const reference to the particle world, in case anyone
-       * wants to query something about particles.
+       * Returns the number of active particle managers.
        */
-      const Particle::World<dim> &
-      get_particle_world() const;
+      unsigned int
+      n_particle_managers() const;
 
       /**
-       * Returns a reference to the particle world, in case anyone wants to
-       * change something within the particle world. Use with care, usually
-       * you want to only let the functions within the particle subsystem
-       * change member variables of the particle world.
+       * Returns a const reference to a single particle manager given the
+       * index.
        */
-      Particle::World<dim> &
-      get_particle_world();
+      const Particle::Manager<dim> &
+      get_particle_manager(const unsigned int particle_manager_index) const;
+
+      /**
+       * Returns a reference to a single particle manager, in case anyone wants to
+       * change something within the particle manager. Use with care, usually
+       * you want to only let the functions within the particle subsystem
+       * change member variables of the particle manager.
+       */
+      Particle::Manager<dim> &
+      get_particle_manager(const unsigned int particle_manager_index);
 
       /**
        * Return true if using the block GMG Stokes solver.

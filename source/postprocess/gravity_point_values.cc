@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2018 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2018 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -178,7 +178,7 @@ namespace aspect
     GravityPointValues<dim>::execute (TableHandler &)
     {
       AssertThrow(false, ExcNotImplemented());
-      return std::pair<std::string,std::string>();
+      return {"", ""};
     }
 
 
@@ -261,7 +261,7 @@ namespace aspect
             // Evaluate the solution at the quadrature points of this cell
             fe_values.reinit (cell);
 
-            in.reinit(fe_values, cell, this->introspection(), this->get_solution(), false);
+            in.reinit(fe_values, cell, this->introspection(), this->get_solution());
             this->get_material_model().evaluate(in, out);
 
             // Pull some computations that are independent of the
@@ -398,7 +398,7 @@ namespace aspect
                 // We are inside the inner radius
                 g_theory[p] = 0;
                 g_potential_theory[p] = 2.0 * G * numbers::PI * reference_density *
-                                        (std::pow(model_inner_radius,2) - std::pow(model_outer_radius,2));
+                                        ((model_inner_radius * model_inner_radius) - (model_outer_radius * model_outer_radius));
               }
             else if ((satellite_positions_spherical[p][0] > model_inner_radius)
                      && (satellite_positions_spherical[p][0] < model_outer_radius))
@@ -406,35 +406,35 @@ namespace aspect
                 // We are in the spherical shell
                 g_theory[p] = G * numbers::PI * 4./3. * reference_density *
                               (satellite_positions_spherical[p][0] -
-                               (std::pow(model_inner_radius,3)
-                                /  std::pow(satellite_positions_spherical[p][0],2)));
+                               ((model_inner_radius * model_inner_radius * model_inner_radius)
+                                /  (satellite_positions_spherical[p][0] * satellite_positions_spherical[p][0])));
                 g_potential_theory[p] = G * numbers::PI * 4./3. * reference_density *
-                                        ((std::pow(satellite_positions_spherical[p][0],2)/2.0) +
-                                         (std::pow(model_inner_radius,3) / satellite_positions_spherical[p][0]))
+                                        (((satellite_positions_spherical[p][0] * satellite_positions_spherical[p][0])/2.0) +
+                                         ((model_inner_radius * model_inner_radius * model_inner_radius) / satellite_positions_spherical[p][0]))
                                         -
                                         G * numbers::PI * 2.0 * reference_density *
-                                        std::pow(model_outer_radius,2);
+                                        (model_outer_radius * model_outer_radius);
               }
             else
               {
                 const double common_factor = G * numbers::PI * 4./3. * reference_density
-                                             * (std::pow(model_outer_radius,3) - std::pow(model_inner_radius,3));
+                                             * ((model_outer_radius * model_outer_radius * model_outer_radius) - (model_inner_radius * model_inner_radius * model_inner_radius));
                 const double r = satellite_positions_spherical[p][0];
 
-                g_theory[p] = common_factor / std::pow(r,2);
+                g_theory[p] = common_factor / (r * r);
                 g_potential_theory[p] = - common_factor / r;
 
                 // For the gradient of g, start with the common part of
                 // the diagonal elements:
                 g_gradient_theory[p][0][0] =
                   g_gradient_theory[p][1][1] =
-                    g_gradient_theory[p][2][2] = -1./std::pow(r,3);
+                    g_gradient_theory[p][2][2] = -1./(r * r * r);
 
                 // Then do the off-diagonal elements:
                 for (unsigned int e=0; e<dim; ++e)
                   for (unsigned int f=e; f<dim; ++f)
                     g_gradient_theory[p][e][f] += -(- 3.0 * satellite_position[e] * satellite_position[f])
-                                                  /  std::pow(r,5);
+                                                  /  Utilities::fixed_power<5>(r);
                 g_gradient_theory[p] *= common_factor;
               }
           }
@@ -697,7 +697,7 @@ namespace aspect
     void
     GravityPointValues<dim>::parse_parameters (ParameterHandler &prm)
     {
-      std::string gravity_subdirectory = this->get_output_directory() + "output_gravity/";
+      const std::string gravity_subdirectory = this->get_output_directory() + "output_gravity/";
       Utilities::create_directory (gravity_subdirectory,
                                    this->get_mpi_communicator(),
                                    true);
@@ -793,9 +793,15 @@ namespace aspect
     void
     GravityPointValues<dim>::save (std::map<std::string, std::string> &status_strings) const
     {
+      // Serialize into a stringstream. Put the following into a code
+      // block of its own to ensure the destruction of the 'oa'
+      // archive triggers a flush() on the stringstream so we can
+      // query the completed string below.
       std::ostringstream os;
-      aspect::oarchive oa (os);
-      oa << (*this);
+      {
+        aspect::oarchive oa (os);
+        oa << (*this);
+      }
 
       status_strings["GravityPointValues"] = os.str();
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2011 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -175,7 +175,7 @@ namespace aspect
 
           // The gravity is zero in the center of the Earth, and we assume the density to be constant and equal to 1.
           // We fix the surface pressure to 0 (and we are only interested in pressure differences anyway).
-          return gravity_magnitude * 0.5 * (1.0 - std::pow(radius/max_radius,2));
+          return gravity_magnitude * 0.5 * (1.0 - Utilities::fixed_power<2>(radius/max_radius));
         }
       else
         return hydrostatic_pressure_profile.value(Point<1>(radius));
@@ -372,11 +372,10 @@ namespace aspect
          * Return the heating terms. For the current class, this
          * function obviously simply returns a constant value.
          */
-        virtual
         void
         evaluate (const MaterialModel::MaterialModelInputs<dim> &material_model_inputs,
                   const MaterialModel::MaterialModelOutputs<dim> &material_model_outputs,
-                  HeatingModel::HeatingModelOutputs &heating_model_outputs) const;
+                  HeatingModel::HeatingModelOutputs &heating_model_outputs) const override;
 
         /**
          * @name Functions used in dealing with run-time parameters
@@ -392,9 +391,8 @@ namespace aspect
         /**
          * Read the parameters this class declares from the parameter file.
          */
-        virtual
         void
-        parse_parameters (ParameterHandler &prm);
+        parse_parameters (ParameterHandler &prm) override;
         /**
          * @}
          */
@@ -439,7 +437,7 @@ namespace aspect
                              "The specific rate of heating due to radioactive decay (or other bulk sources "
                              "you may want to describe). This parameter corresponds to the variable "
                              "$H$ in the temperature equation stated in the manual, and the heating "
-                             "term is $\rho H$. Units: W/kg.");
+                             "term is $\\rho H$. Units: W/kg.");
         }
         prm.leave_subsection();
       }

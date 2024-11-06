@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2011 - 2023 by the authors of the ASPECT code.
+  Copyright (C) 2011 - 2024 by the authors of the ASPECT code.
 
   This file is part of ASPECT.
 
@@ -62,7 +62,7 @@ namespace aspect
         const GeometryModel::Box<2> *geometry
           = dynamic_cast<const GeometryModel::Box<2>*> (&geometry_model);
         const double L=geometry->get_extents()[0];
-        return x*x*y*y+x*y+5. - pow(L,4.)/9.-pow(L,2.)/4.-5.;
+        return x*x*y*y+x*y+5. - std::pow(L,4.)/9.-std::pow(L,2.)/4.-5.;
       }
 
       double
@@ -383,7 +383,7 @@ namespace aspect
       std::shared_ptr<Function<dim>> ref_func;
       {
 
-        ref_func.reset (new AnalyticSolutions::FunctionViscosityGrooves<dim>(this->get_geometry_model()));
+        ref_func = std::make_unique<AnalyticSolutions::FunctionViscosityGrooves<dim>>(this->get_geometry_model());
       }
 
       const QGauss<dim> quadrature_formula (this->introspection().polynomial_degree.velocities+2);
